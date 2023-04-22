@@ -3,9 +3,9 @@ import Cart from './components/Cart/Cart';
 import Layout from './components/Layout/Layout';
 import Products from './components/Shop/Products';
 import { useEffect } from 'react';
-import { uiActions } from './Redux-Store/uiSilce';
 import { Fragment } from 'react';
 import Notification from './components/UI/Notification';
+import { fetchcartData, sendCartdata } from './Redux-Store/cartActioncreator';
 
 let initial=true;
 function App() {
@@ -14,39 +14,17 @@ function App() {
   const notification=useSelector(state=>state.UI.notification)
   const dispatch=useDispatch()
   useEffect(()=>{
-    const sendCartdata=async()=>{
-      dispatch(uiActions.showNotification({
-        status:'pending',
-        title:'sending...',
-        message:'sending cart data'
-      }))
-      const response=await fetch(`https://react-shoppingapp-2c052-default-rtdb.firebaseio.com/cart.json`,
-    {
-      method:'PUT', //PUT request because we want to update the cart so just like editing expense
-      body:JSON.stringify({cart}),
-    })
-    if(!response.ok){
-      throw new Error('sending cart data failed')
-    }
-    dispatch(uiActions.showNotification({
-      status:'success',
-      title:'success...',
-      message:'send cart data successfully'
-    }))
-    }
-    
-    if(initial){
-      initial=false;
-      return;
-    }
-
-    sendCartdata().catch(error=>{
-      dispatch(uiActions.showNotification({
-        status:'error',
-        title:'Error!',
-        message:'sending cart data failed'
-      }))
-    })
+    dispatch(fetchcartData())
+  },[dispatch])
+  useEffect(()=>{
+   if(initial){
+    initial=false
+    return;
+   }
+   if(cart.changed){
+    dispatch(sendCartdata(cart))
+   }
+   
   },[cart,dispatch])
   return (
     <Fragment>
